@@ -4,8 +4,11 @@ from pymongo import MongoClient
 COLLECTION_NAME = 'kudos'
 class MongoRepository(object):
     def __init__(self):
+        print(self)
         mongo_url = os.environ.get('MONGO_URL')
+        print(mongo_url)
         self.db = MongoClient(mongo_url).kudos
+        print("successfully connect mongodb", self)
     def find_all(self, selector):
         return self.db.kudos.find(selector)
     def find(self, selector):
