@@ -37,4 +37,3 @@ class Service(object):
         data = githubRepo.data
         data['user_id'] = self.user_id
         return data    
-        
