@@ -27,6 +27,24 @@ def create():
         return json_response({'error': github_repo.errors}, 422)
     kudo = Kudo(g.oidc_token_info['sub']).create_kudo_for(github_repo)
     return json_response(kudo)
+#FIND USER 
+@app.route("/kudos/<int:repo_id>", method=["GET"])
+@oidc.accept_token(True)
+def show(repo_id):
+    kudo = Kudo(g.oidc_token_info['sub']).find_kudo(repo_id)
+    if kudo:
+        return json_response(kudo)
+    else:
+        return json_response({'error': 'kudo not found'}, 404)
+
+#UPDATE USER 
+# @app.route("/kudo/<int:repo_id>", method=["PUT"])
+# @oidc.accept_token(Trud)
+# def update(repo_id):
+#     github_repo = GitHubRepoSchema().load(json.load(request.data))
+#     if github_repo.errors:
+#         return json_response({'error': github_repo.errors}, 422)
+#     kudo_service =  Kudo(g.oidc_token_info['sub'])
 
 # Create Json 
 def json_response(payload, status=200):
