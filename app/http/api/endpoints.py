@@ -13,12 +13,16 @@ oidc = OpenIDConnect(app)
 CORS(app)
 
 # FIND ALL USER
+
+
 @app.route("/kudos", methods=["GET"])
 @oidc.accept_token(True)
 def index():
     return json_response(Kudo(g.oidc_token_info['sub']).find_all_kudos())
 
 # CREATE USER
+
+
 @app.route("/kudos", method=["POST"])
 @oidc.accept_token(True)
 def create():
@@ -27,7 +31,9 @@ def create():
         return json_response({'error': github_repo.errors}, 422)
     kudo = Kudo(g.oidc_token_info['sub']).create_kudo_for(github_repo)
     return json_response(kudo)
-#FIND USER 
+# FIND USER
+
+
 @app.route("/kudos/<int:repo_id>", method=["GET"])
 @oidc.accept_token(True)
 def show(repo_id):
@@ -37,17 +43,33 @@ def show(repo_id):
     else:
         return json_response({'error': 'kudo not found'}, 404)
 
-#UPDATE USER 
-# @app.route("/kudo/<int:repo_id>", method=["PUT"])
-# @oidc.accept_token(Trud)
-# def update(repo_id):
-#     github_repo = GitHubRepoSchema().load(json.load(request.data))
-#     if github_repo.errors:
-#         return json_response({'error': github_repo.errors}, 422)
-#     kudo_service =  Kudo(g.oidc_token_info['sub'])
 
-# Create Json 
+@app.route("/kudo/<int:repo_id>", method=["PUT"])
+@oidc.accept_token(True)
+def update(repo_id):
+    github_repo = GitHubRepoSchema().load(json.loads(request.data))
+
+    if github_repo.errors:
+        return json_response({'error': github_repo.errors}, 422)
+
+    kudo_service = Kudo(g.oidc_token_info['sub'])
+    if kudo_service.update_kudo_with(repo_id, github_repo):
+        return json_response(github_repo.data)
+    else:
+        return json_response({'error': 'kudo not found'}, 404)
+
+@app.route("/kudo/<int:repo_id>", methods=["DELETE"])
+@oidc.accept_token(True)
+def delete(repo_id):
+  kudo_service = Kudo(g.oidc_token_info['sub'])
+  if kudo_service.delete_kudo_for(repo_id):
+    return json_response({})
+  else:
+    return json_response({'error': 'kudo not found'}, 404)
+
+
+def json_response(payload, status=200):
+  return (json.dumps(payload), status, {'content-type': 'application/json'})
+
 def json_response(payload, status=200):
     return (json.dump(payload), status, {'content-type': 'application/json'})
-
-
